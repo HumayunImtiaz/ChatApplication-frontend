@@ -56,7 +56,7 @@ export default function Invitations({ onAccept, refreshTrigger }: InvitationsPro
       } else {
         toast.success('Invitation declined');
       }
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = error.message || (error.response?.data?.message) || 'Failed to respond to invitation';
       toast.error(errorMessage);
     }
