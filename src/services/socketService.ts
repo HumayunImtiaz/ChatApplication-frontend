@@ -9,6 +9,7 @@ class SocketService {
 
     this.socket = io(API_CONFIG.SOCKET_URL, {
       auth: { token },
+      transports: ['websocket'],
     });
 
     this.socket.on('connect', () => {

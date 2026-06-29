@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   CREATE_GROUP_CHAT: '/chats/group',
   GET_CHATS: '/chats',
   GET_CHAT: (chatId: string) => `/chats/${chatId}`,
+  UPDATE_GROUP_CHAT: (chatId: string) => `/chats/${chatId}/group`,
   INVITE_TO_GROUP: '/chats/invite',
 
   // Messages

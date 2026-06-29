@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Phone, MoreVertical, Download, Users, Mail, Clock, Paperclip, Trash2, FileText, ImageIcon, FileCode, Archive } from 'lucide-react';
+import { Phone, MoreVertical, Download, Users, Mail, Clock, Paperclip, Trash2, FileText, ImageIcon, FileCode, Archive, UserPlus, Camera, Save, X, Edit2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { userService } from '../services/userService';
 import { messageService } from '../services/messageService';
 import { chatService } from '../services/chatService';
 import { socketService } from '../services/socketService';
 import UserSearch from './UserSearch';
-import { UserPlus } from 'lucide-react';
 
 interface DirectoryProps {
   selectedUserId: string | null;
@@ -24,6 +23,11 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
   const [sharedFiles, setSharedFiles] = useState<any[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
+  const [isEditingGroup, setIsEditingGroup] = useState(false);
+  const [editGroupName, setEditGroupName] = useState('');
+  const [editGroupAvatar, setEditGroupAvatar] = useState('');
+  const [isSavingGroup, setIsSavingGroup] = useState(false);
+  const groupFileInputRef = useRef<HTMLInputElement>(null);
   const lastUserIdRef = useRef<string | null>(null);
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -44,6 +48,45 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
       toast.error('Failed to delete chat.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUserId) return;
+    try {
+      setIsSavingGroup(true);
+      await chatService.updateGroupChat(selectedUserId, {
+        name: editGroupName,
+        avatar: editGroupAvatar,
+      });
+      toast.success('Group updated successfully!');
+      setIsEditingGroup(false);
+      window.location.reload();
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update group');
+    } finally {
+      setIsSavingGroup(false);
+    }
+  };
+
+  const handleGroupFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsSavingGroup(true);
+      const result: any = await messageService.uploadFile(file);
+      const fileUrl = result?.data?.url || result?.url;
+      if (fileUrl) {
+        setEditGroupAvatar(fileUrl);
+      } else {
+        toast.error('Failed to upload image.');
+      }
+    } catch (error: any) {
+      toast.error('Failed to upload image');
+    } finally {
+      setIsSavingGroup(false);
     }
   };
 
@@ -88,6 +131,10 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
       } else {
         setUser(null);
         lastUserIdRef.current = null;
+        if (selectedChat) {
+          setEditGroupName(selectedChat.name || '');
+          setEditGroupAvatar(selectedChat.avatar || '');
+        }
       }
 
       loadSharedFiles(selectedUserId);
@@ -179,6 +226,9 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
 
   const isOnline = user?.is_online || onlineUsers.has(user?.id);
   const members = isGroup ? (selectedChat?.members || []) : [];
+  
+  const currentUserRole = members.find((m: any) => m.id === currentUser.id)?.role;
+  const isAdmin = currentUserRole === 'admin';
 
   return (
     <div className="h-screen w-[380px] flex-shrink-0 bg-white border-l border-gray-100 flex flex-col overflow-hidden">
@@ -222,11 +272,92 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
           </div>
         )}
 
-
+        {/* Group Profile Header */}
+        {isGroup && selectedChat && (
+          <div className="p-8 border-b border-gray-100 text-center animate-in fade-in slide-in-from-top-4 duration-500 relative group/header">
+            {isEditingGroup ? (
+              <form onSubmit={handleUpdateGroup} className="space-y-4">
+                <div className="flex justify-between items-center bg-gray-50 p-2 rounded-xl mb-4">
+                  <h3 className="text-sm font-bold text-gray-900 ml-2">Edit Group</h3>
+                  <button type="button" onClick={() => setIsEditingGroup(false)} className="p-1 hover:bg-gray-200 rounded-lg text-gray-500">
+                    <X size={16} />
+                  </button>
+                </div>
+                
+                <div className="relative inline-block mb-2 group/avatar">
+                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl text-white font-bold shadow-md overflow-hidden border-4 border-white mx-auto">
+                    {editGroupAvatar ? (
+                      <img src={editGroupAvatar} alt="Group Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <Users size={32} />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => groupFileInputRef.current?.click()}
+                    className="absolute -bottom-2 -right-2 p-2 bg-white text-purple-600 rounded-xl shadow-lg border border-gray-200 hover:scale-110 transition"
+                  >
+                    <Camera size={18} />
+                  </button>
+                  <input type="file" ref={groupFileInputRef} onChange={handleGroupFileChange} className="hidden" accept="image/*" />
+                </div>
+                
+                <input
+                  type="text"
+                  value={editGroupName}
+                  onChange={(e) => setEditGroupName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-bold text-center"
+                  placeholder="Group Name"
+                  required
+                />
+                
+                <button
+                  type="submit"
+                  disabled={isSavingGroup}
+                  className="w-full py-2.5 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  {isSavingGroup ? 'Saving...' : 'Save Details'}
+                </button>
+              </form>
+            ) : (
+              <>
+                {isAdmin && (
+                  <button 
+                    onClick={() => setIsEditingGroup(true)}
+                    className="absolute top-4 right-4 p-2 bg-white text-gray-400 hover:text-purple-600 rounded-xl shadow-sm border border-gray-100 opacity-0 group-hover/header:opacity-100 transition-opacity transform hover:scale-110"
+                    title="Edit Group"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                )}
+                
+                <div className="relative inline-block mb-4">
+                  <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-4xl text-white font-bold shadow-xl overflow-hidden border-4 border-white mx-auto">
+                    {selectedChat.avatar ? (
+                      <img src={selectedChat.avatar} alt={selectedChat.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Users size={40} />
+                    )}
+                  </div>
+                </div>
+                <h3 className="text-xl font-extrabold text-gray-900 mb-1">{selectedChat.name}</h3>
+                <p className="text-sm text-gray-500 font-medium mb-6">Group Chat</p>
+                
+                <div className="p-3 bg-gray-50 rounded-2xl text-center border border-gray-100 inline-block px-6">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Created</p>
+                  <p className="text-xs font-bold text-gray-700">
+                    {selectedChat.created_at ? new Date(selectedChat.created_at).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Team Members Section (Only for Groups) */}
         {isGroup && (
-          <section className="p-6 border-b border-gray-100">
+          <section className="p-6 border-b border-gray-100 bg-gray-50/30">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-gray-900">Team Members</h3>
@@ -245,20 +376,29 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
               {members.map((member: any) => (
                 <div key={member.id} className="flex items-center gap-4 group cursor-pointer">
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-600 font-bold overflow-hidden shadow-sm border border-gray-100">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold overflow-hidden shadow-sm border border-gray-100 ${
+                      member.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+                    }`}>
                       {member.avatar ? (
                         <img src={member.avatar} alt={member.username} className="w-full h-full object-cover" />
                       ) : (
                         member.username?.[0]?.toUpperCase() || '👤'
                       )}
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ${
+                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-colors ${
                       member.is_online || onlineUsers.has(member.id) ? 'bg-green-500' : 'bg-gray-300'
                     }`} />
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900 truncate group-hover:text-purple-600 transition">{member.username}</p>
-                    <p className="text-xs text-gray-500 font-medium truncate">{member.role || (member.id === currentUser.id ? 'Me' : 'Member')}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-gray-900 truncate group-hover:text-purple-600 transition flex items-center gap-2">
+                       {member.username} 
+                       {member.id === currentUser.id && <span className="px-1.5 py-0.5 bg-gray-100 text-[10px] uppercase font-bold text-gray-500 rounded-md">You</span>}
+                    </p>
+                    <p className={`text-xs font-semibold truncate mt-0.5 ${
+                        member.role === 'admin' ? 'text-purple-500' : 'text-gray-500'
+                    }`}>
+                       {member.role === 'admin' ? 'Administrator' : 'Member'}
+                    </p>
                   </div>
                 </div>
               ))}

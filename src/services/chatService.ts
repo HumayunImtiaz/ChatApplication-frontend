@@ -18,6 +18,11 @@ export const chatService = {
     });
   },
 
+  // Update group chat
+  updateGroupChat: async (chatId: string, data: { name?: string; avatar?: string }) => {
+    return await axios.put(API_ENDPOINTS.UPDATE_GROUP_CHAT(chatId), data);
+  },
+
   // Get all chats
   getChats: async () => {
     return await axios.get(API_ENDPOINTS.GET_CHATS);

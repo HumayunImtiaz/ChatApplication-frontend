@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/authService';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,12 +13,12 @@ export default function LoginPage() {
     email: '',
     password: '',
   });
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setFieldErrors({});
     setLoading(true);
 
     try {
@@ -26,16 +27,26 @@ export default function LoginPage() {
           email: formData.email,
           password: formData.password,
         });
+        toast.success('Login successful');
       } else {
         await authService.register({
           username: formData.username,
           email: formData.email,
           password: formData.password,
         });
+        toast.success('Registration successful');
       }
       router.push('/');
     } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      if (err.error && Array.isArray(err.error)) {
+        const errors: { [key: string]: string } = {};
+        err.error.forEach((e: any) => {
+          errors[e.field] = e.message;
+        });
+        setFieldErrors(errors);
+      } else {
+        toast.error(err.message || 'Something went wrong');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,13 +59,7 @@ export default function LoginPage() {
           {isLogin ? 'Welcome Back' : 'Create Account'}
         </h1>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -64,9 +69,13 @@ export default function LoginPage() {
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                required={!isLogin}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  fieldErrors.username ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.username && (
+                <p className="text-red-500 text-xs mt-1">{fieldErrors.username}</p>
+              )}
             </div>
           )}
 
@@ -78,9 +87,13 @@ export default function LoginPage() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
+            {fieldErrors.email && (
+              <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -91,9 +104,13 @@ export default function LoginPage() {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                fieldErrors.password ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
+            {fieldErrors.password && (
+              <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>
+            )}
           </div>
 
           <button
@@ -109,7 +126,7 @@ export default function LoginPage() {
           <button
             onClick={() => {
               setIsLogin(!isLogin);
-              setError('');
+              setFieldErrors({});
             }}
             className="text-purple-600 hover:underline"
           >
