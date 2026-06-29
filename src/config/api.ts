@@ -2,10 +2,10 @@
 export const API_CONFIG = {
   BASE_URL:
     process.env.NEXT_PUBLIC_API_URL ||
-    'https://chatapplication-backend-production.up.railway.app/api/v1',
+    'https://humayun0987-chatapp.hf.space/api/v1',
   SOCKET_URL:
     process.env.NEXT_PUBLIC_SOCKET_URL ||
-    'https://chatapplication-backend-production.up.railway.app',
+    'https://humayun0987-chatapp.hf.space',
 };
 
 // API Endpoints
