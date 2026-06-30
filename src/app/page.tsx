@@ -244,9 +244,9 @@ export default function Home() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 mb-2">About</h3>
                 <div className="space-y-2 text-sm text-gray-600">
-                  <p>Version: 1.0.0</p>
-                  <p>Built with Next.js & Socket.io</p>
-                  <p>Backend: Node.js + PostgreSQL</p>
+
+                  <p>Humayun Imtiaz</p>
+                  <p>FullStack Software Engineer</p>
                 </div>
               </div>
             </div>

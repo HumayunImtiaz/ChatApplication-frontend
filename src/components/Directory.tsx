@@ -186,6 +186,7 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
         const content = m.content || '';
         return content.startsWith('http') && (
           content.includes('/uploads/') ||
+          content.includes('cloudinary.com/') ||
           /\.(jpg|jpeg|png|gif|pdf|doc|docx|xls|xlsx|zip)$/i.test(content)
         );
       }).map((m: any) => {
@@ -245,7 +246,13 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
   }
 
   const isOnline = user?.is_online || onlineUsers.has(user?.id);
-  const members = isGroup ? localMembers : [];
+  const members = isGroup ? [...localMembers].sort((a, b) => {
+    if (a.role === 'admin' && b.role !== 'admin') return -1;
+    if (b.role === 'admin' && a.role !== 'admin') return 1;
+    if (a.id === currentUser.id) return -1;
+    if (b.id === currentUser.id) return 1;
+    return (a.username || '').localeCompare(b.username || '');
+  }) : [];
   const currentUserRole = members.find((m: any) => m.id === currentUser.id)?.role;
   const isAdmin = currentUserRole === 'admin';
 
@@ -437,7 +444,7 @@ export default function Directory({ selectedUserId, selectedChat, isGroup, onCha
                     <button
                       onClick={() => handleRemoveMember(member.id, member.username)}
                       disabled={removingMemberId === member.id}
-                      className="opacity-0 group-hover/member:opacity-100 p-1.5 hover:bg-red-50 text-red-400 hover:text-red-600 rounded-lg transition flex-shrink-0 border border-transparent hover:border-red-100"
+                      className="p-1.5 hover:bg-red-50 text-red-400 hover:text-red-700 rounded-lg transition flex-shrink-0 border border-transparent hover:border-red-100"
                       title={`Remove ${member.username}`}
                     >
                       {removingMemberId === member.id ? (

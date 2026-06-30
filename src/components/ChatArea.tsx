@@ -337,7 +337,8 @@ export default function ChatArea({
   };
 
   const isImageUrl = (url: string) => {
-    return url.match(/\.(jpeg|jpg|gif|png)$/) != null || url.includes('/uploads/') && (url.toLowerCase().endsWith('.png') || url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.jpeg') || url.toLowerCase().endsWith('.gif'));
+    const isImageFile = url.match(/\.(jpeg|jpg|gif|png)$/i) != null;
+    return isImageFile || ((url.includes('/uploads/') || url.includes('cloudinary.com/')) && isImageFile);
   };
 
   const renderMessageContent = (msg: Message) => {
@@ -355,8 +356,9 @@ export default function ChatArea({
       );
     }
 
-    if (content.startsWith('http') && content.includes('/uploads/')) {
-      const fileName = content.split('/').pop() || 'File';
+    if (content.startsWith('http') && (content.includes('/uploads/') || content.includes('cloudinary.com/') || /\.(pdf|doc|docx|xls|xlsx|zip|txt)$/i.test(content))) {
+      let fileName = content.split('/').pop() || 'File';
+      if (fileName.includes('?')) fileName = fileName.split('?')[0]; // simple cleanup
       return (
         <a
           href={content}
