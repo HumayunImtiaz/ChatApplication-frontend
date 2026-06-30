@@ -1,7 +1,8 @@
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://humayun0987-chatapp.hf.space/api/v1';
-
+// API Configuration
 export const API_CONFIG = {
-  BASE_URL: rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl.replace(/\/$/, '')}/api/v1`,
+  BASE_URL:
+    process.env.NEXT_PUBLIC_API_URL ||
+    'https://humayun0987-chatapp.hf.space/api/v1',
   SOCKET_URL:
     process.env.NEXT_PUBLIC_SOCKET_URL ||
     'https://humayun0987-chatapp.hf.space',
