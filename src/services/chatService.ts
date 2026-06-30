@@ -45,4 +45,9 @@ export const chatService = {
   leaveChat: async (chatId: string) => {
     return await axios.delete(`${API_ENDPOINTS.GET_CHATS}/${chatId}/leave`);
   },
+
+  // Remove a member from a group (admin only)
+  removeMember: async (chatId: string, memberId: string) => {
+    return await axios.delete(`${API_ENDPOINTS.GET_CHATS}/${chatId}/members/${memberId}`);
+  },
 };

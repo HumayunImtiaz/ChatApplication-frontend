@@ -12,12 +12,12 @@ interface NavBarProps {
   invitationCount?: number;
 }
 
-export default function NavBar({ 
-  activeTab, 
-  onTabChange, 
-  chatFilter, 
+export default function NavBar({
+  activeTab,
+  onTabChange,
+  chatFilter,
   onChatFilterChange,
-  invitationCount = 0 
+  invitationCount = 0
 }: NavBarProps) {
   const router = useRouter();
   const currentUser = authService.getCurrentUser();
@@ -36,99 +36,83 @@ export default function NavBar({
     onChatFilterChange(filter);
   };
 
+  const navBtn = (isActive: boolean) =>
+    `w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+      isActive
+        ? 'bg-violet-600 text-white shadow-lg shadow-violet-200'
+        : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700'
+    }`;
+
   return (
-    <div className="w-20 bg-white border-r border-gray-200 flex flex-col items-center py-6 gap-6 shadow-sm">
-      {/* User Profile */}
-      <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 font-bold text-lg border border-purple-100 shadow-sm">
+    <div className="w-[72px] bg-white border-r border-slate-100 flex flex-col items-center py-5 gap-5 shadow-sm flex-shrink-0">
+      {/* Avatar */}
+      <div className="w-11 h-11 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-violet-200 overflow-hidden flex-shrink-0">
         {currentUser?.avatar ? (
-          <img src={currentUser.avatar} alt="Me" className="w-full h-full object-cover rounded-full" />
+          <img src={currentUser.avatar} alt="Me" className="w-full h-full object-cover" />
         ) : (
           currentUser?.username?.[0]?.toUpperCase() || 'U'
         )}
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex-1 flex flex-col gap-4 w-full px-2">
-        {/* Home (All Messages) */}
+      {/* Divider */}
+      <div className="w-8 h-px bg-slate-100" />
+
+      {/* Nav Tabs */}
+      <div className="flex-1 flex flex-col items-center gap-3">
         <button
           onClick={() => handleFilterClick('all')}
-          className={`p-3 rounded-xl transition-all flex items-center justify-center ${
-            activeTab === 'messages' && chatFilter === 'all'
-              ? 'bg-purple-50 text-purple-600 shadow-sm'
-              : 'text-gray-800 hover:bg-gray-100'
-          }`}
+          className={navBtn(activeTab === 'messages' && chatFilter === 'all')}
           title="All Messages"
         >
-          <Home size={24} strokeWidth={2.5} />
+          <Home size={20} strokeWidth={2.5} />
         </button>
 
-        {/* Invitations Tab */}
         <button
           onClick={() => onTabChange('invitations')}
-          className={`p-3 rounded-xl transition-all relative flex items-center justify-center ${
-            activeTab === 'invitations'
-              ? 'bg-purple-50 text-purple-600 shadow-sm'
-              : 'text-gray-800 hover:bg-gray-100'
-          }`}
+          className={`${navBtn(activeTab === 'invitations')} relative`}
           title="Invitations"
         >
-          <Bell size={24} strokeWidth={2.5} />
+          <Bell size={20} strokeWidth={2.5} />
           {invitationCount > 0 && (
-            <span className="absolute top-2 right-2 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold border-2 border-white">
+            <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white leading-none">
               {invitationCount > 9 ? '9+' : invitationCount}
             </span>
           )}
         </button>
 
-        {/* Direct Chats Filter */}
         <button
           onClick={() => handleFilterClick('chats')}
-          className={`p-3 rounded-xl transition-all flex items-center justify-center ${
-            activeTab === 'messages' && chatFilter === 'chats'
-              ? 'bg-purple-50 text-purple-600 shadow-sm'
-              : 'text-gray-800 hover:bg-gray-100'
-          }`}
+          className={navBtn(activeTab === 'messages' && chatFilter === 'chats')}
           title="Direct Chats"
         >
-          <MessageCircle size={24} strokeWidth={2.5} />
+          <MessageCircle size={20} strokeWidth={2.5} />
         </button>
 
-        {/* Groups Filter */}
         <button
           onClick={() => handleFilterClick('groups')}
-          className={`p-3 rounded-xl transition-all flex items-center justify-center ${
-            activeTab === 'messages' && chatFilter === 'groups'
-              ? 'bg-purple-50 text-purple-600 shadow-sm'
-              : 'text-gray-800 hover:bg-gray-100'
-          }`}
+          className={navBtn(activeTab === 'messages' && chatFilter === 'groups')}
           title="Group Chats"
         >
-          <Users size={24} strokeWidth={2.5} />
+          <Users size={20} strokeWidth={2.5} />
         </button>
       </div>
 
-      {/* Bottom Actions */}
-      <div className="flex flex-col gap-4 px-2 w-full">
-        {/* Settings Tab */}
+      {/* Bottom */}
+      <div className="flex flex-col items-center gap-3">
         <button
           onClick={() => onTabChange('settings')}
-          className={`p-3 rounded-xl transition-all flex items-center justify-center ${
-            activeTab === 'settings'
-              ? 'bg-purple-50 text-purple-600 shadow-sm'
-              : 'text-gray-800 hover:bg-gray-100'
-          }`}
+          className={navBtn(activeTab === 'settings')}
           title="Settings"
         >
-          <Settings size={24} strokeWidth={2.5} />
+          <Settings size={20} strokeWidth={2.5} />
         </button>
 
-        {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="p-3 rounded-xl text-gray-800 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center"
+          className="w-11 h-11 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all"
           title="Logout"
         >
-          <LogOut size={24} strokeWidth={2.5} />
+          <LogOut size={20} strokeWidth={2.5} />
         </button>
       </div>
     </div>
