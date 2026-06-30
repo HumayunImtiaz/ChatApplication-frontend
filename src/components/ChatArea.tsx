@@ -499,18 +499,18 @@ export default function ChatArea({
 
       {/* Overlay for User Profile (mobile/tablet) */}
       {showUserProfile && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden relative animate-in zoom-in duration-200 shadow-2xl">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="font-bold text-gray-900">User Profile</h3>
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex justify-center items-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md h-[90vh] max-h-[680px] overflow-hidden relative shadow-2xl border border-slate-200 flex flex-col">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 flex-shrink-0">
+              <h3 className="font-bold text-slate-900">Profile</h3>
               <button
-                className="p-2 hover:bg-gray-200 rounded-full text-gray-500 transition"
+                className="p-1.5 hover:bg-slate-200 rounded-xl text-slate-500 transition"
                 onClick={() => setShowUserProfile(false)}
               >
                 ✕
               </button>
             </div>
-            <div className="max-h-[80vh] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               <Directory selectedUserId={selectedUserId} selectedChat={selectedChat} isGroup={selectedType === 'group'} onChatDeleted={() => {
                 setShowUserProfile(false);
                 onChatDeleted?.();
@@ -522,18 +522,18 @@ export default function ChatArea({
 
       {/* Overlay for Directory Details (mobile/tablet) */}
       {showDirectoryOverlay && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden relative animate-in zoom-in duration-200 shadow-2xl">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-              <h3 className="font-bold text-gray-900">Conversation Details</h3>
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex justify-center items-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md h-[90vh] max-h-[680px] overflow-hidden relative shadow-2xl border border-slate-200 flex flex-col">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 flex-shrink-0">
+              <h3 className="font-bold text-slate-900">Details</h3>
               <button
-                className="p-2 hover:bg-gray-200 rounded-full text-gray-500 transition"
+                className="p-1.5 hover:bg-slate-200 rounded-xl text-slate-500 transition"
                 onClick={() => setShowDirectoryOverlay(false)}
               >
                 ✕
               </button>
             </div>
-            <div className="max-h-[80vh] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               <Directory selectedUserId={selectedUserId} selectedChat={selectedChat} isGroup={selectedType === 'group'} onChatDeleted={() => {
                 setShowDirectoryOverlay(false);
                 onChatDeleted?.();

@@ -162,7 +162,7 @@ export default function Home() {
           </div>
 
 
-          <div className="hidden xl:block">
+          <div className="hidden xl:flex xl:w-80 2xl:w-96 h-screen flex-shrink-0 border-l border-slate-200">
             <Directory
               selectedUserId={selectedUserId}
               selectedChat={chats.find(c => c.id === selectedUserId)}
@@ -171,6 +171,7 @@ export default function Home() {
                 loadChats(true);
                 setSelectedUserId(null);
               }}
+              onMemberRemoved={() => loadChats(true)}
             />
           </div>
         </>
